@@ -1,0 +1,41 @@
+Jan: this code was pulled from 
+https://github.com/dlchao/corvid
+on march 27,2020  and will stay separate from the main branch as long as practical 
+
+Offical CFS dir for this project:
+/global/cfs/cdirs/covid19 
+
+To compile it on Cori login node do:
+ssh cori
+git clone  https://github.com/balewski/exaLearnEpi
+cd exaLearnEpi/corvid_march/code
+module load cray-hdf5
+make
+
+Let SCR=exaLearnEpi/corvid_march
+
+To run test for Seattle do
+mkdir $CSCRATCH/wrk
+cd wrk
+cp SRC/sampleconfigfiles/config-seattle26 .
+cp SRC/corviddata/seattle-* .
+
+Reduce number of days in config-seattle26 from 180 to 60
+
+Execution in wrk/
+SRC/code/corvid config-seattle26
+
+Typical run times (against CSCRTACH), 1 task on node:
+cori-login: 9 sec
+haswell: 9 sec
+KNL: 52 sec 
+
+Runtimes agains CFS (aka project)
+cori-login: 9 sec
+haswell: 48 sec
+KNL: 290 sec 
+
+
+The full output from a reference job is at:
+corvid_march/reference_job/
+

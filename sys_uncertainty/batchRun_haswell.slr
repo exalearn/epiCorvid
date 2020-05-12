@@ -1,0 +1,32 @@
+#!/bin/bash -l
+#SBATCH --nodes=1
+#SBATCH --time=00:45:00
+#SBATCH --account covid19 # Covid19, Peter Nugent
+#SBATCH -C haswell
+#SBATCH -q regular
+#SBATCH --array=0-0 # (indexing always start from 0) Just run once unless specified otherwise
+
+arrIdx=${SLURM_ARRAY_TASK_ID}
+
+dirName='MLruns'
+configFile='../corvid_march/sampleconfigfiles/config-seattle26-MLruns'
+dataFiles='../corvid_march/corviddata/seattle-*'
+codeList=' ../corvid_march/code/corvid ./run_corvid_rand2par.sh'
+date
+
+coreN='corvid_demo/'${dirName}
+srcDir=`pwd`
+wrkDir=$CSCRATCH/${coreN}-${arrIdx}
+mkdir -p ${wrkDir}
+cp -rp $codeList $configFile $dataFiles $wrkDir
+cd  $wrkDir
+
+echo start-`date`
+srun --label --ntasks 64 --cpus-per-task 1 ./run_corvid_rand2par.sh ./${configFile##*/}
+echo done-`date`
+
+
+# mv slurm log to final destination
+mv $srcDir/slurm-${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}.out .
+
+

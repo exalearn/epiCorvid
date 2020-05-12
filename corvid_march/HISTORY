@@ -1,0 +1,219 @@
+Corvid version history
+
+Version 0.3 - March 12, 2020
+
+Corvid is based on FluTE (https://github.com/dlchao/FluTE).
+
+Several parameters were adjusted to adapt the FluTE flu transmission 
+to Corvid coronavirus transmission, such as incubation period,
+symptomatic fraction, and viral load trajectories.
+The parallel computing version was removed, so populations of more than
+10,000,000 will probably not run on a laptop.
+
+Version 0.1 or 0.2 added a "work from home" policy.
+Version 0.3 is the first version the outside world has seen.
+Version 0.4 fixes bug in "liberal leave" that made it happen before the policy was supposed to start and a huge bug in incubation time.
+Version 0.5 adds option for home isolation after ascertainment, community contact reduction, and work policies of limited duration
+
+= = = = = = = = = = = = = = = = 
+
+Those are major chnages to the original code from
+https://github.com/dlchao/corvid
+
+2020-03-27, by Jan Balewski:
+
+1) I modified epimodel.cpp in ~40 places by adding '[' and ']' for all lists so the summary file is now a regular Yaml. (I may have missed fixes for some not currently used outputs)
+From now on use 'yaml' extension in the config file:
+summaryfilename Summary-seattle26.yaml
+because summary  is now in yaml file format.
+2) I have added a print-class called in the main:
+  EpiPara2yaml sum( parms.getSummaryFileName());
+  sum.save(configname);
+which captures the summary file name from the config-file, replaces '.ymal' --> '.meta.yaml',
+and saves the config file in it in the yaml format as well.
+This 2 changes allow now to read e.g. into python a well-formatted:
+Summary-seattle26.yaml
+Summary-seattle26.meta.yaml
+where user controls this name by setting  summary filename  in the config.
+
+3) As a bonus I added
+dumpSum.py  which reads both yaml files and dumps them on the screen - just to see all works as intended.
+
+
+
+- - - - - - - - - - - 
+2020-04-03, by Jan Balewski:
+ Now we are saving HD5 with ML-style 'data:tract3D' & 'labels:parBio', the accompanied titles of the columns of HD5 arrays are saved in .meta.yaml. I did not normalized parBio, no parUnit.
+This 2 classes  manage it all: EpiData2hd5 and EpiParam2yaml.
+
+Changes:
+*) HD5 on Cori needs: module load cray-hdf5
+*) the name of config file (after removing 'config-') is not the core-name for my 2 outputs: .meta.yaml and .h5
+
+*) my test config: config-seattle26c includes 8 variables which have beens set be Peter H., those are added as labels to HD5 . To modify the labels saved in HD5  edit:  EpiModel::prepH5()
+*) all labels are stored in HD5 as float32 
+
+*) this method: EpiData2hd5::doDiffTract()
+compute differences for the  integrals saved in Log-file. It is executed at the very end in  EpiModel::saveH5(). Disable it if you want to compare 1:1
+
+*) to dump meta.yaml execute:   ./dumpMeta.py -N seattle26c  ( use core name)
+You should see:
+'hd5meta': {'fileName': 'seattle26c.h5',
+             'parBio': ['TriggerDay',
+                        'SchoolClosurePolicy',
+                        'SchoolClosureDays',
+                        'LiberalLeaveCompliance',
+                        'QuarantineCompliance',
+                        'WorkFromHomeCompliance',
+                        'VoluntaryIsolationCompliance',
+                        'AscertainedIsolationCompliance'],
+             'tract3D': {'axis_name': ['census_tract', 'age_group', 'simu_day'],
+                         'axis_shape': [124, 5, 40]}}}
+Note, you need to pip install --user ruamel.yaml in py3 to make this script work 
+
+*) to inspect HD5 execute:  ./dumpHD5.py -N seattle26c
+You should see:
+read data from hdf5: ./seattle26c.h5
+read  parBio (8,) float32
+read  tract3D (124, 5, 40) int32
+check Labels:
+[10.    1.   80.    0.81  0.82  0.83  0.84  0.85]
+
+*) empty lines in config are now ignored
+*) file HISTORY contains  this text
+*) technical: the below piece of code in corvid.cpp does all the magic. It is very entangled - I admit - but I tried to keep 'my code' separately from all Dennis files - so future upgrade will be easier (and I have a lesser chance to mess-up the main code).
+ - - -
+  EpiModel model(parms);
+  string coreName=configname;
+  coreName.replace(0,7,"");
+  
+  EpiPara2yaml meta(coreName );
+  meta.save_config(configname);
+  model.prepH5(parms);
+  model.run(); // execution of the  simulation
+  model.saveH5(coreName);
+  meta.save_hd5meta();
+- - - 
+
+Finally, this is the input I have used:
+cat config-seattle26c
+# basic configuration file for metro seattle
+label example-seattle-26b
+datafile seattle
+R0 2.6
+runlength 40
+
+summaryfilename Summary-seattle26b.yaml
+#logfilename Log-seattle26b.txt
+#tractfilename Tracts-seattle26b.txt
+#individualfilename Individuals-seattle26b.txt
+#individualfile 1
+randomnumberseed 1
+seedinfected 5
+seedinfecteddaily 0
+responsethreshold 1
+# from Peter H.
+responseday 10
+schoolclosurepolicy all
+schoolclosuredays 80
+liberalleave 0.81
+quarantine 0.82
+workfromhome 0.83
+voluntaryisolation 0.84
+ascertainedisolation 0.85
+
+
+- - - - - - - -
+2020-04-05, by Jan Balewski:
+
+I added a EpiModel method which accumulates every day the above value in static 3D array with dims: [census_tract][age_group][simu_day]. Next, at the end of simulation I compute the difference  vs. simu_day for each fixed [census_tract][age_group]. The resulting 3D array is being saved as HD5:
+symptomatic3D[census_tract][age_group][simu_day] 
+where age_group_enum: [0-4, 5-18, 19-29, 30-64, 65-plus]
+
+Detailed changes:
+*)change to use commvec[i].nEverSymptomatic[j] to store final HD5: symptomatic3D[census_tract][age_group][simu_day]
+*) added names of 5 age_groups to heta.yaml:
+*) remove "SchoolClosurePolicy" from parBio because it is categorical and interpolation makes no sense
+*) disable printouts of : 'Closing schools' etc for  track.id>2
+*) Makefile: removed switch  -march=native to make CC happy on Cori
+*) minute cleanup
+
+- - - - - - - - - - - 
+2020-04-07, by Jan Balewski:
+
+*) added R0 to bioPar
+*) added uniPar to Hd5 which is [-1,1]-normalized version of bioPar
+*) added bioRanges to meta.yaml
+
+Meta content:
+ 'hd5meta': {'bioRange': {'AscertainedIsolationCompliance': [0.0, 1.0],
+                          'LiberalLeaveCompliance': [0.0, 1.0],
+                          'QuarantineCompliance': [0.0, 1.0],
+                          'R0': [0.0, 5.0],
+                          'SchoolClosureDays': [1.0, 365.0],
+                          'TriggerDay': [1.0, 365.0],
+                          'VoluntaryIsolationCompliance': [0.0, 1.0],
+                          'WorkFromHomeCompliance': [0.0, 1.0]},
+             'fileName': 'seattle26c.h5',
+             'parBio': {'axis_bins': ['R0',
+                                      'TriggerDay',
+                                      'SchoolClosureDays',
+                                      'LiberalLeaveCompliance',
+                                      'QuarantineCompliance',
+                                      'WorkFromHomeCompliance',
+                                      'VoluntaryIsolationCompliance',
+                                      'AscertainedIsolationCompliance']},
+             'symptomatic3D': {'age_group_bins': ['0-4',
+                                                  '5-18',
+                                                  '19-29',
+                                                  '30-64',
+                                                  '65-plus'],
+                               'axis_name': ['census_tract',
+                                             'age_group',
+                                             'simu_day'],
+                               'axis_shape': [124, 5, 60]}}}
+
+HD5 conent:
+read  parBio (8,) float32
+read  symptomatic3D (124, 5, 60) int32
+read  uniBio (8,) float32
+
+check parBio:
+[ 2.6  10.   80.    0.81  0.82  0.83  0.84  0.85]
+
+check uniBio:
+[ 0.03999996 -0.9505494  -0.56593406  0.62        0.64        0.65999997
+  0.67999995  0.70000005]
+
+- - - - - - - -
+2020-04-09, by Jan Balewski:
+cast 'symptomatic3D' to ushort before saving to HD5, clip over/undeflows
+
+- - - - - - - -
+2020-04-10, by Jan Balewski:
+Reduced daily Summary.haml to this record, only the last day contains all
+  - Day: 1
+    Number symptomatic (daily): [ 0,0, ]
+    Cumulative symptomatic (daily): [ 0,0, ]
+    Total infection attack rates by age: [ 0,1.60137e-05,0,7.55926e-06,1.53266e-05, ]
+    Total infection attack rate: 8.87337e-06
+    Total infected individuals by age: [ 0,2,0,2,1, ]
+    Total symptomatic attack rates by age: [ 0,0,0,0,0, ]
+    Total symptomatic attack rate: 0
+    Total symptomatic individuals by age: [ 0,0,0,0,0, ]
+    Total symptomatic unvaccinated individuals by age: [ 0,0,0,0,0, ]
+    Total unvaccinated individuals by age: [ 36924,124893,71845,264576,65246, ]
+    Total individuals by age: [ 36924,124893,71845,264576,65246, ]
+
+- - - - - - - -
+2020-05-05, by Jan Balewski:
+added to hd5
+  epiH5->addLabel("WorkFromHomeDuration", parms.getWorkFromHomeDuration(),1,365);
+  and changed the default to  nWorkFromHomeDuration=365:; (was 10000)
+  and in 
+  // are non-school NPIs done?
+  change from
+  (fWorkFromHomeCompliance>0.0 && nWorkFromHomeDuration>0 && nWorkFromHomeDuration<5000)
+  to
+  (fWorkFromHomeCompliance>0.0 && nWorkFromHomeDuration>0 && nWorkFromHomeDuration<365)
+  

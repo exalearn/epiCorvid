@@ -1,0 +1,13 @@
+#!/bin/bash -l
+#SBATCH --nodes=1  --time=04:00:00  
+#SBATCH -C gpu 
+#SBATCH --account m3363
+#SBATCH --gres=gpu:8
+#SBATCH --exclusive
+#SBATCH -c 80
+
+module load pytorch/v1.4.0-gpu
+
+# Start training
+srun python train.py ./config/dcgan.yaml condBN_noNorm_test
+date

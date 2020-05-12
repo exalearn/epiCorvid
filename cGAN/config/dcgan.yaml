@@ -1,0 +1,76 @@
+default: &DEFAULT
+
+  nd_layers: 4
+  nd_filters: 64
+
+  z_dim: 16
+  ng_layers: 4
+  ng_filters: 64
+
+  disc_LReLU_alpha: 0.2
+  disc_batchnorm: True
+  disc_dropout: None
+  cond_BN: False
+  resample_pars: False
+  batchnorm_kwargs: {eps : 1e-5, momentum: 0.1}
+  conv_kwargs: {kernel_size: 5, stride: 2, padding: 1, bias: True}
+  conv_transpose_kwargs: {kernel_size: 5, stride: 2, padding: 1, output_padding: 0, bias: True}
+
+  disc_init: {conv_init: 'normal', conv_scale: 0.02, conv_bias: 0.,
+              linear_scale: 0.02, linear_bias: 0., bn_weight: 1., bn_bias: 0.}
+
+  gen_init: {conv_init: 'normal', conv_scale: 0.02, conv_bias: 0.,
+             linear_scale: 0.02, linear_bias: 0., bn_weight: 1., bn_bias: 0.}
+
+  optim: 'Adam'
+  lr: 0.0002
+  adam_beta1: 0.5
+  adam_beta2: 0.999
+  flip_labels_alpha: None
+  decay_label_flipping: False
+  disc_sign_penalty: False
+
+  data_path: '/global/cfs/cdirs/covid19/datasets/corvid2par_10k/data.h5'
+  norm: 'log'
+  num_data_workers: 1
+  x_out_size: 124
+  y_out_size: 365
+  num_channels: 5
+  num_params: 2
+  data_transformation: None
+  tensorboard_samples_transform: None
+  plot_weights: False
+
+  batch_size: 64
+  num_epochs: 100
+  ngpu: 1
+
+  seed: None
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/cGAN/base/'
+  load_checkpoint: None
+
+
+condBN:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/cGAN/condBN/'
+  cond_BN: True
+
+condBN_noNorm:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/cGAN/condBN_noNorm/'
+  cond_BN: True
+  norm: None
+
+condBN_noNorm_test:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/cGAN/condBN_noNorm_test/'
+  cond_BN: True
+  norm: None
+
+condBN_noNorm_resamp:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/cGAN/condBN_noNorm_resamp/'
+  cond_BN: True
+  norm: None
+  resample_pars: True
+

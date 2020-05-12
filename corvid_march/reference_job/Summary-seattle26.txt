@@ -1,0 +1,63 @@
+Corvid version: 0.4
+Label: example-seattle-26
+Population: seattle
+beta: 0.168206
+R0: 2.6
+Random number generator seed: 1
+Tracts: 124
+Communities: 283
+Families: 221813
+People: 563484
+Essential worker fraction: 0
+Travel allowed: 0
+School opening days: 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+Seeded 5 infected people
+Seeded (n/10000) at airports: 0
+Seeded once
+Protection from pre-existing immunity: 1
+Pre-existing immunity fraction by age: 0,0,0,0,0,
+Baseline VES by age: 0,0,0,0,0,
+Prevaccination strategy: none
+Reactive vaccination strategy: none
+Vaccine priorities : 1,1,1,1,1,1,1,1,1,1,1,1,1,
+Response threshold: 1
+Response delay: 1
+Ascertainment delay: 1
+Ascertainment fraction: 0.8
+Reactive strategies deployed at time: NA
+School closure policy: none
+School closure days: 0
+Voluntary isolation: 0
+Ascertained isolation: 0
+Quarantine: 0
+Quarantine duration: 14
+Liberal leave compliance: 0
+Liberal leave duration: 10000
+Work from home compliance: 0
+Work from home duration: 10000
+Community contact reduction: 0
+Community contact reduction duration: 10000
+Antiviral policy: none
+Vaccination fraction: 0.7
+Vaccines initially available: 0
+Vaccines deliverable per day: 4294967295
+Antivirals available: 4294967295
+Antivirals deliverable per day: 4294967295
+Vaccines used: 0
+Antivirals used: 0
+Relative vaccine efficacy by age: 1,1,1,1,1,
+Needs boost by age and school: 0,0,0,0,0,0,0,0,
+AVEs: 0.3
+AVEp: 0.6
+AVEi: 0.62
+Number symptomatic (daily): 0,0,0,0,0,0,0,0,0,0,2,2,3,4,5,7,8,9,9,13,14,15,21,24,28,31,34,38,42,48,54,59,64,74,86,98,109,123,141,163,192,220,240,270,310,345,383,420,459,506,549,602,655,729,778,847,923,977,1070,1123,
+Cumulative symptomatic (daily): 0,0,0,0,0,0,0,0,0,0,2,2,3,4,5,7,8,9,9,13,14,16,22,25,29,33,38,42,46,53,61,67,74,86,100,117,131,148,170,194,226,257,283,319,364,408,451,500,561,621,680,750,821,920,997,1095,1195,1279,1403,1512,
+Total infection attack rates by age: 0.00723107,0.015181,0.00786415,0.00837567,0.00511909,
+Total infection attack rate: 0.00936673
+Total infected individuals by age: 267,1896,565,2216,334,
+Total symptomatic attack rates by age: 0.00176037,0.00457992,0.00205999,0.00237739,0.00150201,
+Total symptomatic attack rate: 0.00268331
+Total symptomatic individuals by age: 65,572,148,629,98,
+Total symptomatic unvaccinated individuals by age: 65,572,148,629,98,
+Total unvaccinated individuals by age: 36924,124893,71845,264576,65246,
+Total individuals by age: 36924,124893,71845,264576,65246,
