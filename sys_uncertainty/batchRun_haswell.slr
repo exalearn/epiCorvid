@@ -1,17 +1,17 @@
 #!/bin/bash -l
 #SBATCH --nodes=1
-#SBATCH --time=00:45:00
-#SBATCH --account covid19 # Covid19, Peter Nugent
+#SBATCH --time=00:40:00
+#SBATCH --account m3623 
 #SBATCH -C haswell
 #SBATCH -q regular
 #SBATCH --array=0-0 # (indexing always start from 0) Just run once unless specified otherwise
 
 arrIdx=${SLURM_ARRAY_TASK_ID}
 
-dirName='MLruns'
-configFile='../corvid_march/sampleconfigfiles/config-seattle26-MLruns'
+dirName='updated'
+configFile='../corvid_march/sampleconfigfiles/config-seattle-updated'
 dataFiles='../corvid_march/corviddata/seattle-*'
-codeList=' ../corvid_march/code/corvid ./run_corvid_rand2par.sh'
+codeList=' ../corvid_march/code/corvid ./run_corvid_updated.sh'
 date
 
 coreN='corvid_demo/'${dirName}
@@ -22,7 +22,7 @@ cp -rp $codeList $configFile $dataFiles $wrkDir
 cd  $wrkDir
 
 echo start-`date`
-srun --label --ntasks 64 --cpus-per-task 1 ./run_corvid_rand2par.sh ./${configFile##*/}
+srun --label --ntasks 64 --cpus-per-task 1 ./run_corvid_updated.sh ./${configFile##*/}
 echo done-`date`
 
 

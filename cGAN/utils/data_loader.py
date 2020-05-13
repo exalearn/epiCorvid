@@ -4,9 +4,7 @@ from torch.utils.data import DataLoader, TensorDataset
 import h5py
 from torch import Tensor
 
-num_train = 8500
-
-
+                
 def normalize(x, norm):
   if norm=='log':
     return np.log1p(x)
@@ -16,10 +14,11 @@ def normalize(x, norm):
 
 def get_data_loader(params):
   with h5py.File(params.data_path, 'r') as f:
-    arr = f['symptomatic3D'][:num_train,:,:,:].astype(np.float32)
-    uniPars = f['uniBio'][:num_train,:params.num_params].astype(np.float32)
+    arr = f['symptomatic3D'][:params.num_train,:,:,:].astype(np.float32)
+    uniPars = f['uniBio'][:params.num_train,params.param_inds].astype(np.float32)
+    bioPars = f['parBio'][:params.num_train,params.param_inds].astype(np.float32)
   arr = normalize(np.moveaxis(arr, 2, 1), params.norm)
-  dataset = TensorDataset(Tensor(arr), Tensor(uniPars))
+  dataset = TensorDataset(Tensor(arr), Tensor(uniPars), Tensor(bioPars))
 
   loader = DataLoader(dataset,
                       batch_size=params.batch_size,
@@ -31,10 +30,11 @@ def get_data_loader(params):
 
 def get_vald_loader(params):
   with h5py.File(params.data_path, 'r') as f:
-    arr = f['symptomatic3D'][num_train:,:,:,:].astype(np.float32)
-    uniPars = f['uniBio'][num_train:,:params.num_params].astype(np.float32)
+    arr = f['symptomatic3D'][params.num_train:,:,:,:].astype(np.float32)
+    uniPars = f['uniBio'][params.num_train:,params.param_inds].astype(np.float32)
+    bioPars = f['parBio'][params.num_train:,params.param_inds].astype(np.float32)
   arr = normalize(np.moveaxis(arr, 2, 1), params.norm)
-  dataset = TensorDataset(Tensor(arr), Tensor(uniPars))
+  dataset = TensorDataset(Tensor(arr), Tensor(uniPars), Tensor(bioPars))
 
   loader = DataLoader(dataset,
                       batch_size=params.batch_size,

@@ -8,7 +8,13 @@ import matplotlib.pyplot as plt
 age_bins = ['0-4', '5-18', '19-29', '30-64', '65+']
 
 
-def plot_samples(runs, pars):
+def get_label(tag, par):
+    if tag=='3parA':
+        return 'R0=%f, WFHcompl=%f, WFHdays=%d'%(par[0], par[1], par[2])
+    else:
+        return 'R0=%f, TriggerDay=%d'%(par[0], par[1])
+
+def plot_samples(runs, pars, tag):
     for i in range(len(runs)):
         run=runs[i]
         par=pars[i]
@@ -23,26 +29,18 @@ def plot_samples(runs, pars):
             else:
                 plt.subplot(4,2,j+1)
                 plt.imshow(np.zeros(run[:,0,:].shape), cmap='Greys')
-                R0 = 2.5*par[0] + 2.5
-                TriggerDay = int(183 + 182*par[1])
-                plt.title('R0=%f, TriggerDay=%d'%(R0, TriggerDay))
-                #plt.annotate('R0=%f, TriggerDay=%d'%(R0, TriggerDay),
-                #             (62, 60),
-                #             color='black')
+                txt = get_label(tag, par)
+                plt.title(txt)
                 plt.axis('off')
         plt.tight_layout(pad=0.25)
     return fig
 
 
-def compare_curves(reals, fakes, pars, norm='log', peakshift=True):
+def compare_curves(reals, fakes, pars, tag, norm='log', peakshift=True):
     if norm=='log':
         reals = np.exp(reals) - 1.
         fakes = np.exp(fakes) - 1.
-    # Map parameters back to un-normalized units
-    pars[:,0] = 2.5*pars[:,0] + 2.5
-    pars[:,1] = 183 + np.multiply(pars[:,1], 182).astype(np.int)
     
-    pars = pars
     realsum = np.sum(reals, axis=(1,2))
     fakesum = np.sum(fakes, axis=(1,2))
     days = np.arange(realsum.shape[1])
@@ -65,7 +63,8 @@ def compare_curves(reals, fakes, pars, norm='log', peakshift=True):
         f, (a0, a1) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [2, 1], 'hspace':0}, figsize=(8,6))
         a0.plot(days, true, 'k-', label='True')
         a0.plot(days, shifted, 'r-', label='cGAN (shifted)')
-        a0.set_title('R0=%f, TriggerDay=%d, peakshift=%d'%(R0, TriggerDay,offset))
+        txt = get_label(tag, par)
+        a0.set_title(txt+', pkshift=%d'%offset)
         a0.set_ylabel('Daily new symptomatic individuals')
         a0.set_yscale('log')
         a0.legend()
@@ -83,7 +82,8 @@ def compare_curves(reals, fakes, pars, norm='log', peakshift=True):
         f, (a0, a1) = plt.subplots(2, 1, gridspec_kw={'height_ratios': [2, 1], 'hspace':0}, figsize=(8,6))
         a0.plot(days, true, 'k-', label='True')
         a0.plot(days, gen, 'r-', label='cGAN')
-        a0.set_title('R0=%f, TriggerDay=%d'%(R0, TriggerDay))
+        txt = get_label(tag, par)
+        a0.set_title(txt)
         a0.set_ylabel('Daily new symptomatic individuals')
         a0.set_yscale('log')
         a0.legend()

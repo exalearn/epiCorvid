@@ -102,7 +102,7 @@ def train(params, writer):
         D_x = output.mean().item()
 
         if params.resample_pars:
-          pars = 2.*torch.rand((b_size, 2), device=device) - 1.
+          pars = 2.*torch.rand((b_size, params.num_params), device=device) - 1.
         noise = torch.randn((b_size, 1, params.z_dim), device=device)
         fake = netG(noise, pars) 
         label.fill_(fake_label)
@@ -136,21 +136,22 @@ def train(params, writer):
     reals = []
     fakes = []
     vpars = []
-    for i, data in enumerate(data_loader, 0):
+    for i, data in enumerate(vald_loader, 0):
         real = data[0].numpy()
         pars = data[1].to(device)
+        biopars = data[2]
         with torch.no_grad():
           noise = torch.randn((b_size, 1, params.z_dim), device=device)
           fake = netG(noise, pars).detach().cpu().numpy()
           fakes.append(fake)
-          vpars.append(pars.detach().cpu().numpy())
+          vpars.append(biopars.detach().numpy())
           reals.append(real)
     reals = np.concatenate(reals, axis=0)
     fakes = np.concatenate(fakes, axis=0)
     vpars = np.concatenate(vpars, axis=0)
-    fig = plot_samples(fakes[:1], vpars[:1])
+    fig = plot_samples(fakes[:1], vpars[:1], tag=params.tag)
     writer.add_figure('samples', fig, iters, close=True)
-    fig, score, fig2 = compare_curves(reals, fakes, vpars, norm=params.norm)
+    fig, score, fig2 = compare_curves(reals, fakes, vpars, tag=params.tag, norm=params.norm)
     writer.add_figure('peak_curve', fig, iters, close=True)
     writer.add_figure('MAE_dist', fig2, iters, close=True)
     writer.add_scalar('peak_curve_MAE', score, iters)

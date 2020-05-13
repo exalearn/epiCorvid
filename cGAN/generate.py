@@ -31,10 +31,21 @@ def generate(params, checkpt, outname, num=64, batch=64):
   print("Starting generation...")
   Niters = num//batch
   out = np.zeros((num, 5, 124, 365)).astype('ushort')
-  pars_norm = np.zeros((num, 2)).astype(np.float)
+  pars_norm = np.zeros((num, params.num_params)).astype(np.float)
   for i in range(Niters):
     with torch.no_grad():
-      pars = 2.*torch.rand((batch, 2), device=device) - 1.
+      if '2parB' in params.data_path:
+        # Different normalized range for different dataset
+        pars_R0 = 1.4*torch.rand((batch, 1), device=device) - 0.4
+        pars_TriggerDay = 1.3791*torch.rand((batch, 1), device=device) - 1.
+        pars = torch.cat([pars_R0, pars_TriggerDay], axis=-1)
+      elif '3parA' in params.tag:
+        pars_R0 = 0.4*torch.rand((batch, 1), device=device) - 0.2
+        pars_WFHcomp = 1.8*torch.rand((batch, 1), device=device) - 1.
+        pars_WFHdays = 0.24725*torch.rand((batch, 1), device=device) - 0.75275
+        pars = torch.cat([pars_R0, pars_WFHcomp, pars_WFHdays], axis=-1)
+      else:
+        pars = 2.*torch.rand((batch, 2), device=device) - 1.
       noise = torch.randn((batch, 1, params.z_dim), device=device)
       fake = netG(noise, pars).detach().cpu().numpy() 
       if params.norm == 'log':
@@ -57,7 +68,7 @@ if __name__ == '__main__':
     exit()
 
   params = YParams(os.path.abspath(sys.argv[1]), sys.argv[2])
-  N = 16384
+  N = 32768
   bs = 8192
   start = time.time()
   generate(params, sys.argv[3], sys.argv[4], num=N, batch=bs)
