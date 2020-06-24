@@ -81,7 +81,7 @@ class DatasetBuilder():
         symptomatic3Ds = []
         
         start=time.time()
-        for arrIdx in range(1):
+        for arrIdx in range(self.Narr):
             jobDir=self.dataDir+self.dataTag+'-'+str(arrIdx)+'/'
             print('Parsing job directory %s'%jobDir)
             for procIdx in range(self.Nperjob):

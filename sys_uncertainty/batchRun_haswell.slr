@@ -8,10 +8,10 @@
 
 arrIdx=${SLURM_ARRAY_TASK_ID}
 
-dirName='updated'
-configFile='../corvid_march/sampleconfigfiles/config-seattle-updated'
+dirName='RLtest'
+configFile='../corvid_march/sampleconfigfiles/config-seattle26-RLtest'
 dataFiles='../corvid_march/corviddata/seattle-*'
-codeList=' ../corvid_march/code/corvid ./run_corvid_updated.sh'
+codeList=' ../corvid_march/code/corvid ./run_corvid_RLtest.sh'
 date
 
 coreN='corvid_demo/'${dirName}
@@ -22,7 +22,7 @@ cp -rp $codeList $configFile $dataFiles $wrkDir
 cd  $wrkDir
 
 echo start-`date`
-srun --label --ntasks 64 --cpus-per-task 1 ./run_corvid_updated.sh ./${configFile##*/}
+srun --label --ntasks 64 --cpus-per-task 1 ./run_corvid_RLtest.sh ./${configFile##*/}
 echo done-`date`
 
 

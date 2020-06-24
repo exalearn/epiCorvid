@@ -1,0 +1,122 @@
+default: &DEFAULT
+
+  nd_layers: 3
+  nd_filters: 64
+
+  ng_layers: 3
+  ng_filters: 64
+
+  disc_LReLU_alpha: 0.2
+  disc_batchnorm: True
+  disc_dropout: None
+  cond_BN: True
+  resample_pars: False
+  batchnorm_kwargs: {eps : 1e-5, momentum: 0.1}
+  conv_kwargs: {kernel_size: 1, stride: 1, padding: 0, bias: True}
+  downconv_kwargs: {kernel_size: 2, stride: [2, 1], padding: 0, bias: True}
+
+  disc_init: {conv_init: 'normal', conv_scale: 0.02, conv_bias: 0.,
+              linear_scale: 0.02, linear_bias: 0., bn_weight: 1., bn_bias: 0.}
+
+  gen_init: {conv_init: 'normal', conv_scale: 0.02, conv_bias: 0.,
+             linear_scale: 0.02, linear_bias: 0., bn_weight: 1., bn_bias: 0.}
+
+  optim: 'Adam'
+  lr: 0.0001
+  L1_weight: 1.0
+  adv_loss: False
+  adam_beta1: 0.5
+  adam_beta2: 0.999
+  flip_labels_alpha: None
+  decay_label_flipping: False
+  disc_sign_penalty: False
+
+  data_path: '/global/cfs/cdirs/m3623/datasets/RLtest/data.h5'
+  norm: 'log'
+  num_data_workers: 1
+  x_size: 124
+  y_size: 5
+  num_channels: 2
+  num_params: 2
+  param_inds: [3, 5]
+  pred_interval: 7  
+  start_end_weeks: [3, 45]
+
+  tag: 'RLtest'
+  data_transformation: None
+  tensorboard_samples_transform: None
+  plot_weights: False
+
+  batch_size: 64
+  num_epochs: 200
+  num_train: 8500
+  ngpu: 1
+
+  seed: None
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/base/'
+  load_checkpoint: None
+
+
+
+exp:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/exp/'
+  norm: None
+
+exp_G256:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/exp_G256/'
+  norm: None
+  ng_filters: 256
+  ng_layers: 4
+
+exp_G512:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/exp_G512/'
+  norm: None
+  ng_filters: 512
+  ng_layers: 4
+
+
+exp_adv:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/exp_adv/'
+  adv_loss: True
+  norm: None
+  L1_weight: 3.0
+
+exp_adv_128:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/exp_adv_128/'
+  adv_loss: True
+  norm: None
+  L1_weight: 3.0
+  nd_filters: 128
+  ng_filters: 128
+  ng_layers: 4
+  num_epochs: 1000
+
+exp_adv_256:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/exp_adv_256/'
+  adv_loss: True
+  norm: None
+  L1_weight: 10.0
+  nd_filters: 256
+  ng_filters: 256
+  ng_layers: 4
+  nd_layers: 4
+  num_epochs: 1000
+
+exp_adv_256_morelate:
+  <<: *DEFAULT
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/RLtest/exp_adv_256_morelate/'
+  adv_loss: True
+  norm: None
+  L1_weight: 10.0
+  nd_filters: 256
+  ng_filters: 256
+  ng_layers: 4
+  nd_layers: 4
+  start_end_weeks: [9, 50]
+

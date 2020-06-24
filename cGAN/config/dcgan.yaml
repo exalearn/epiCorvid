@@ -93,3 +93,14 @@ condBN_noNorm_resamp:
   experiment_dir: '/global/cscratch1/sd/pharring/covid/cGAN/3parA_20k/'
   data_path: '/global/cfs/cdirs/covid19/datasets/corvid3parA_20k/data.h5'
   num_train: 18500
+
+3parA_20k_bigger:
+  <<: *3parA
+  experiment_dir: '/global/cscratch1/sd/pharring/covid/cGAN/3parA_20k_bigger/'
+  data_path: '/global/cfs/cdirs/covid19/datasets/corvid3parA_20k/data.h5'
+  num_train: 18500
+  nd_filters: 128
+
+  z_dim: 64
+  ng_filters: 96
+

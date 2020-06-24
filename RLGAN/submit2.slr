@@ -6,8 +6,9 @@
 #SBATCH --exclusive
 #SBATCH -c 80
 
-module load pytorch/v1.4.0-gpu
+module load pytorch/v1.5.0-gpu
 
 # Start training
-srun python train.py ./config/dcgan.yaml 3parA_20k_bigger
+srun python train.py ./config.yaml explicit_adv_256_morelate
 date
+
