@@ -1,18 +1,18 @@
-# Generating corvid samples with a conditional GAN
-
-Here there is code to train and use a GAN to generate mock runs of corvid for different parameters, using conditional batch normalization to condition the GAN on parameter values.
+# Running corvid predicitions for RL training
+Here there is code to train and use a neural network model to advance mock corvid simulations under various control parameters. The setup is similar to a conditional GAN, with the exception that the generator network does not sample any noise vector and instead takes the current state of the simulation (new and cumulative symptomatic cases per tract and age group) as input, then produces the prediction for the next week.
 
 ### Requirements
 The code has been developed and run with the following software:
 * numpy, scipy, matplotlib, h5py (python 3.7)
-* pytorch 1.4.0
+* pytorch 1.5.0
 
 ### Sample pre-trained weights
-A model checkpoint from the `3parA_20k` GAN is available [here](https://portal.nersc.gov/project/m3623/pretrained/3parA_20k/).
+A model checkpoint from the `exp_adv_256` GAN is available [here](https://portal.nersc.gov/project/m3623/pretrained/RLtest/).
 
-### Generating from pre-trained model
-The `gen_pretrained.py` script is an example script that generates sample runs for the `3parA_20k` dataset, which varies the corvid parameters `R0`, `workfromhome`, and `workfromhomedays`. These parameters are linearly scaled to [-1,1] according to [these ranges](https://github.com/exalearn/epiCorvid/blob/b36765e80f321860068f60dbe40f3af17b59c34f/corvid_march/HISTORY#L149) before being fed to the GAN. Usage is as follows:
+### Running predictions for pre-trained model
+The `inference.py` script is an example script demonstrating how to use the trained model to advance the state of a simulation over some weeks. Usage is as follows:
 ```
-python gen_pretrained.py ./config/dcgan.yaml 3parA_20k checkpt_path output_path
+python inference.py --yaml_config=./config.yaml --config=exp_adv_256 --data=/path/to/data --saved_weights=/path/to/pretrained/weights
 ```
-Here, `checkpt_path` and `output_path` are the paths to the saved model and desired output file, respectively. User can manually adjust the number of simulations generated as well as the range of parameters used for generation by editing the script.
+The model was trained on states randomly sampled from the [RLtest](https://portal.nersc.gov/project/m3623/datasets/RLtest/) dataset, between weeks 3 and 45 (these starting/ending weeks may change in future models), so prediciton works by randomly sampling a "starting" state from the start week across the full dataset. At the start week, no controls are in place, and all simulations are coming from the same sets of parameters/controls. Then, the script will iteratively predict the following weeks of behavior, sampling a new set of control parameters each week. Currently the script is configured to make predictions for just one trajectory, but this can be easily parallelized by increasing the `bs` parameter.
+
