@@ -1,6 +1,6 @@
 # Generating corvid samples with a conditional GAN
 
-Here there is code to train and use a GAN to generate mock runs of corvid for different parameters, using conditional batch normalization to condition the GAN on parameter values.
+Here there is code to train and use a GAN to generate mock runs of corvid for different parameters, using conditional instance normalization to condition the GAN on parameter values.
 
 ### Requirements
 The code has been developed and run with the following software:
